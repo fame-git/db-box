@@ -1,0 +1,99 @@
+docker start comp2400image
+docker exec -u postgres -it comp2400image bin/bash
+psql
+\dt
+\q
+
+docker cp C:\Users\Taylor\Desktop\employeeCreate.sql comp2400image:/
+\i employeeQueries.sql
+
+SELECT DISTINCT col_name FROM table_name;
+SELECT col_ name FROM table_name ORDER BY col_name_1, col_name_2;
+
+COUNT(*): number of rows in the group
+SUM(col_name): sum of items in the group
+AVG (col_name): average of items in the group
+
+SELECT col_name FROM table_name WHERE condition GROUP BY col_name HAVING group_conditioning ORDER BY col_name;
+
+
+(4) Write a single query which shows the average salary of employees for each department.
+
+SELECT dno, ROUND(AVG(salary), 1) AS avg_salary FROM employee GROUP BY dno; 
+
+
+(5) Show the project numbers (pnumber/pno) and total hours for the projects (SUM(hours), GROUP BY pno/pnumber) if their total hours are larger than 200 hours. (HAVING SUM(hours)>200)
+
+SELECT pno, SUM(hours) AS total_hours FROM works_on GROUP BY pno HAVING SUM(hours)>200;
+
+
+(6) Show the project numbers, names and total hours for the projects if their total hours are larger than 200 hours. 
+Compare your query with the query written in the previous exercise.
+
+SELECT pno, pname, SUM(hours) AS total_hours FROM works_on, project WHERE pnumber=pno GROUP BY pno, pname HAVING SUM(hours)>200;
+
+
+(7) Show the department number (employee.dno/department.dnumber), department name (department.dname) and average salary (AVG(employee.salary)) of all employees who work in the department (GROUP BY dno/dname) if the average salary is greater than $60,000.
+
+SELECT d.dnumber, d.dname, ROUND(AVG(e.salary), 0) AS avg_salary
+FROM employee AS e, department AS d 
+WHERE e.dno = d.dnumber
+GROUP BY d.dnumber, d.dname
+HAVING AVG(salary) > 60000;
+
+SELECT * FROM A, B WHERE A.pka = B.fka;
+SELECT * FROM A INNER JOIN B ON A.pka = B.fka;
+
+A LEFT JOIN B
+
+A
+pka c1
+10   mm
+
+B
+pkb c2  fka
+00   m2 00
+
+SELECT * FROM A LEFT JOIN B ON A.pka = B.fka;
+pka  c1    pkb   c2 fka
+10   mm
+
+INNER JOIN: takes the intersection between two tables based on the common columns; gets the records that appeared in the two tables at the same time.
+OUTER JOIN:
+LEFT JOIN: always keeps the records on the left table
+RIGHT JOIN: always keeps the records on the right table
+
+
+
+(8) List the employees who work on at least one project.
+
+SELECT DISTINCT employee.* FROM employee 
+INNER JOIN works_on ON employee.ssn = works_on.ssn;
+
+
+(9) List the projects which at least one employee works on.
+
+SELECT DISTINCT project.* FROM project INNER JOIN works_on ON project.pnumber = works_on.pno;
+
+(10) List all the employees, and the project numbers of the projects they work on if any.
+
+SELECT DISTINCT employee.*, pno FROM employee LEFT JOIN works_on
+ON employee.ssn= works_on.ssn;
+
+Subqueries
+SELECT col_name FROM table_name WHERE condition;
+1. SELECT col_name FROM (SELECT col_name FROM table_name);
+2. SELECT col_name FROM table_name WHERE EXISTS (SELECT col_name FROM table_name);
+3. WITH sub AS (SELECT col_name FROM table_name) SELECT col_name FROM sub;
+
+(11) How many hours have been spent working on the most time-consuming project?
+
+SELECT MAX(project_hours) AS max_project_hours FROM
+(SELECT SUM(hours) AS project_hours FROM works_on GROUP BY pno) AS sub;
+
+WITH sub AS (SELECT SUM(hours) AS project_hours FROM works_on GROUP BY pno) 
+SELECT MAX(project_hours) AS max_project_hours FROM sub;
+
+
+
+
